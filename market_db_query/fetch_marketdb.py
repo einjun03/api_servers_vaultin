@@ -15,6 +15,7 @@ app.add_middleware(
 
 @app.get("/markets")
 def get_markets():
+
     conn = psycopg2.connect(
         host=os.getenv("POSTGRES_HOST"),
         port=os.getenv("POSTGRES_PORT"),
@@ -23,11 +24,15 @@ def get_markets():
         password=os.getenv("POSTGRES_PASSWORD")
     )
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT market_id, market_question, yes_price, no_price, end_date
-        FROM current_markets
-        ORDER BY end_date
-    """)
+    try:
+        cursor.execute("""
+            SELECT market_id, market_question, yes_price, no_price, end_date
+            FROM current_markets
+            ORDER BY end_date
+        """)
+        rows = cursor.fetchall()
+    except psycopg2.errors.UndefinedTable:
+        return ["table is not ready yet!"]  # Return empty list if table doesn't exist
     rows = cursor.fetchall()
     cursor.close()
     conn.close()
