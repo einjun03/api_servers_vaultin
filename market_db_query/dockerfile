@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Good: install deps with caching
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy your app code
+COPY fetch_marketdb.py /app/fetch_marketdb.py
+
+# FastAPI will listen here (change if you want)
+EXPOSE 8002
+
+# Run FastAPI with uvicorn
+CMD ["uvicorn", "fetch_marketdb:app", "--host", "0.0.0.0", "--port", "8002"]
