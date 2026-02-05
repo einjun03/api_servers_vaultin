@@ -118,7 +118,7 @@ def insert_data(conn, formatted_data):
 
     cursor = conn.cursor()
     cursor.executemany("""
-        INSERT INTO current_markets 
+        INSERT INTO current_markets_all
         (market_id, market_question, event_id, yes_price, no_price, end_date, description, source, updated_at)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
         ON CONFLICT (market_id)

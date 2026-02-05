@@ -10,7 +10,7 @@ def setup_database(conn):
 
     #create table active_window (the currently active window of events)
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS current_markets (
+        CREATE TABLE IF NOT EXISTS current_markets_all (
             market_id VARCHAR(100) PRIMARY KEY,
             market_question TEXT, 
             event_id VARCHAR(100),
