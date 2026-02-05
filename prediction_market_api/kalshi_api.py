@@ -132,7 +132,7 @@ def insert_data(conn, formatted_data):
 
     # Cleanup expired markets
     cursor.execute("""
-        DELETE FROM current_markets
+        DELETE FROM current_markets_all
         WHERE end_date < NOW()
     """)
     conn.commit()
