@@ -2,13 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Good: install deps with caching
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your app code
 COPY polymarket_api.py .
+COPY kalshi_api.py .
 COPY utils.py .
 
-# Run FastAPI with uvicorn
-CMD ["python", "polymarket_api.py"]
+# Run both scripts sequentially
+CMD ["sh", "-c", "python polymarket_api.py && python kalshi_api.py"]

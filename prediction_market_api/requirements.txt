@@ -1,3 +1,2 @@
 psycopg2-binary
 requests
-kalshi_python_sync
