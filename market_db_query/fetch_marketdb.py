@@ -28,6 +28,7 @@ def get_markets():
         cursor.execute("""
             SELECT market_id, market_question, yes_price, no_price, end_date
             FROM current_markets
+            WHERE source = 'kalshi'
             ORDER BY end_date
         """)
         rows = cursor.fetchall()
