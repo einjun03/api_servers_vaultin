@@ -10,4 +10,4 @@ COPY kalshi_api.py .
 COPY utils.py .
 
 # Run both scripts sequentially
-CMD ["sh", "-c", "python polymarket_api.py && python kalshi_api.py"]
+CMD ["sh", "-c", "python kalshi_api.py; python polymarket_api.py"]
