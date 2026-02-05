@@ -1,4 +1,6 @@
 
+from datetime import datetime, timedelta
+
 def setup_database(conn):
     """
     db keys:
@@ -11,13 +13,11 @@ def setup_database(conn):
         CREATE TABLE IF NOT EXISTS current_markets (
             market_id VARCHAR(100) PRIMARY KEY,
             market_question TEXT, 
-            market_slug VARCHAR(200),
             event_id VARCHAR(100),
-            event_title TEXT,
-            event_slug VARCHAR(200),
             yes_price FLOAT,
             no_price FLOAT,
             end_date TIMESTAMP,
+            description TEXT,
             source TEXT,
             updated_at TIMESTAMP DEFAULT NOW()
         )
@@ -25,4 +25,26 @@ def setup_database(conn):
 
     conn.commit()
     cursor.close()
+
+def to_unix(dt):
+    """
+    returns unix timestamp as an int
+    """
+    return int(dt.timestamp())
+
+def fix_timewindow():
+    """
+    fixes the timewindow we desire to fetch from
+    """
+    current_dt = datetime.now()
+    max_end_dt = current_dt + timedelta(hours=24)
+ 
+    #global min_close_ts
+    #global max_close_ts
+
+    res = {}
+    res['min_close_ts'] = to_unix(current_dt)
+    res['max_close_ts'] = to_unix(max_end_dt)
+    return res
+
     

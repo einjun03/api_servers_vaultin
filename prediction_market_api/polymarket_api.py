@@ -1,5 +1,5 @@
 import psycopg2
-from utils import setup_database
+from utils import setup_database, to_unix
 import os
 import requests
 from datetime import datetime, timedelta
@@ -20,22 +20,22 @@ conn = psycopg2.connect(
     password=os.getenv("POSTGRES_PASSWORD")
 )
 
+current_time = None
+max_end_time = None
 
 def get_polymarket_batch(offset, limit=100):
     """
     get a single batch with offset (pagination)
     """
     #get all entries from curr - the next update time (and hour later)
-    current_dt = datetime.now()
-    max_end_dt = current_dt + timedelta(hours=24)
     try:
         response = requests.get(
             f"https://gamma-api.polymarket.com/events",
             params={
                 "active":True, 
                 "closed":False, 
-                "end_date_min":int(current_dt.timestamp()),
-                "end_date_max":int(max_end_dt.timestamp()),
+                "end_date_min": current_time,
+                "end_date_max": max_end_time,
                 "limit": limit,
                 "offset": offset
             },
@@ -51,6 +51,14 @@ def get_polymarket_batch(offset, limit=100):
     return data
 
 def get_all_polymarket():
+
+    current_dt = datetime.now()
+    max_end_dt = current_dt + timedelta(hours=24)
+
+    global current_time, max_end_time
+    current_time = to_unix(current_dt)
+    max_end_dt = to_unix(max_end_dt)
+
     all_events = []
     curr_offset = 0
     limit = 100
@@ -75,8 +83,8 @@ def format_rows(raw_data, source="polymarket"):
     for event in raw_data:
         end_date = event["endDate"]
         event_id = event["id"]
-        event_title = event["title"]
-        event_slug = event["slug"]
+        #event_title = event["title"]
+        #event_slug = event["slug"]
         for market in event['markets']:
             try:
                 curr_prices = json.loads(market["outcomePrices"])
@@ -85,13 +93,11 @@ def format_rows(raw_data, source="polymarket"):
                 rows.append((
                     market["id"],
                     market["question"],
-                    market["slug"],
                     event_id,
-                    event_title,
-                    event_slug,
                     yes_price,
                     no_price,
                     datetime.fromisoformat(end_date.replace("Z", "+00:00")),
+                    market['description'],
                     source
                 ))
             except (json.JSONDecodeError, KeyError, IndexError):
@@ -104,8 +110,8 @@ def insert_data(conn, formatted_data):
     cursor = conn.cursor()
     cursor.executemany("""
         INSERT INTO current_markets 
-        (market_id, market_question, market_slug, event_id, event_title, event_slug, yes_price, no_price, end_date, source, updated_at)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+        (market_id, market_question, event_id, yes_price, no_price, end_date, description, source, updated_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())
         ON CONFLICT (market_id)
         DO UPDATE SET
             yes_price = EXCLUDED.yes_price,
