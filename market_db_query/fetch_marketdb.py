@@ -26,7 +26,7 @@ def get_markets():
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            SELECT market_id, market_question, yes_price, no_price, end_date
+            SELECT market_id, market_question, yes_price, no_price, end_date, source
             FROM current_markets
             WHERE source = 'kalshi'
             ORDER BY end_date
@@ -44,7 +44,8 @@ def get_markets():
             "question": row[1],
             "yes_price": row[2],
             "no_price": row[3],
-            "end_date": row[4].isoformat()
+            "end_date": row[4].isoformat(),
+            "source": row[5]
         }
         for row in rows
     ]
