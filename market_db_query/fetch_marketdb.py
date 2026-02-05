@@ -34,7 +34,6 @@ def get_markets():
         rows = cursor.fetchall()
     except psycopg2.errors.UndefinedTable:
         return ["table is not ready yet!"]  # Return empty list if table doesn't exist
-    rows = cursor.fetchall()
     cursor.close()
     conn.close()
     
