@@ -66,7 +66,7 @@ def embed(req: TextRequest):
     response = model.encode(req.text)
     return {
         "server_id": SERVER_ID,
-        "response": response
+        "response": response.tolist()
     }
 
 @app.get("/readyz")
