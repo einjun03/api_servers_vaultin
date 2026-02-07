@@ -1,4 +1,4 @@
 fastapi
 pydantic
-sentence_transformers==2.2.2
-uvicorn
+sentence-transformers==2.7.0
+uvicorn[standard]
